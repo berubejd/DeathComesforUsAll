@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=2]
+
+[ext_resource path="res://Entities/Explosion.gd" type="Script" id=1]
+
+[sub_resource type="ParticlesMaterial" id=1]
+emission_shape = 1
+emission_sphere_radius = 1.0
+flag_disable_z = true
+spread = 180.0
+gravity = Vector3( 0, 0, 0 )
+initial_velocity = 60.0
+initial_velocity_random = 0.75
+orbit_velocity = 0.0
+orbit_velocity_random = 0.0
+tangential_accel = 20.0
+tangential_accel_random = 0.3
+scale = 6.0
+scale_random = 0.4
+color = Color( 0.176471, 0.0509804, 0.0509804, 1 )
+
+[node name="Explosion" type="Particles2D"]
+emitting = false
+amount = 24
+lifetime = 0.4
+one_shot = true
+explosiveness = 1.0
+randomness = 0.4
+process_material = SubResource( 1 )
+script = ExtResource( 1 )
