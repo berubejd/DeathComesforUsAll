@@ -1,50 +1,44 @@
-extends KinematicBody2D
+class_name Enemy extends CharacterBody2D
 
 # Enemy movement
-export var acceleration = 30
-export var distance_check = 5
-export var speed = 100
+@export var acceleration = 30
+@export var speed = 100
 
-onready var navigation = get_tree().get_root().find_node("Navigation2D", true, false)
-onready var path_timer = $PathingTimer
+@onready var player: CharacterBody2D = null
+@onready var navigation_agent = $NavigationAgent2D as NavigationAgent2D
+@onready var path_timer = $PathingTimer as Timer
 
 var explosion = preload("res://Entities/Explosion.tscn")
-var path
-var velocity = Vector2.ZERO
 
 
 func _ready():
-	randomize()
+	player = get_tree().get_root().find_child("Player", true, false)
 	path_timer.start(randf())
 
 
 func _physics_process(delta):
-	if not path:
-		return
+	var path = navigation_agent.get_next_path_position()
+	look_at(path)
+	
+	#var direction = to_local(path.normalized())
+	var direction = (path - global_position).normalized()
+	velocity = velocity.lerp(direction * speed, acceleration * delta)
 
-	var distance_to_destination = position.distance_to(path[0])
+	move_and_slide()
 
-	if distance_to_destination > distance_check:
-		look_at(path[0])
-		position = position.linear_interpolate(path[0], (speed * delta) / distance_to_destination)
-		var _motion = move_and_slide(Vector2.ZERO)
-	else:
-		path.remove(0)
-
-
-func _on_HitBox_body_entered(_body):
-	var explosion_instance = explosion.instance()
-	explosion_instance.position = global_position
-	explosion_instance.emitting = true
-	get_tree().get_root().find_node("Effects", true, false).add_child(explosion_instance)
-	queue_free()
-
+func _on_HitBox_body_entered(body):
+	if body is Bullet:
+		var explosion_instance = explosion.instantiate()
+		explosion_instance.position = global_position
+		explosion_instance.emitting = true
+		get_tree().get_root().find_child("Effects", true, false).add_child(explosion_instance)
+		queue_free()
 
 func _on_PathingTimer_timeout():
-	path_timer.start(randf())
+	path_timer.start(randf() / 2)
 	make_path()
 
 
 func make_path():
-	var player = get_tree().get_root().find_node("Player", true, false)
-	path = navigation.get_simple_path(position, player.position, false)
+	if player:
+		navigation_agent.set_target_position(player.global_position)

@@ -1,7 +1,7 @@
 extends CanvasLayer
 
-onready var control = $Control
-onready var count_label = $Control/CenterContainer/HBoxContainer/CountLabel
+@onready var control = $Control
+@onready var count_label = $Control/CenterContainer/HBoxContainer/CountLabel
 
 var starting_enemies
 

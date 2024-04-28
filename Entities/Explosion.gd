@@ -1,4 +1,4 @@
-extends Particles2D
+extends GPUParticles2D
 
 
 func _physics_process(_delta):

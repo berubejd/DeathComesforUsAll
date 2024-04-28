@@ -1,13 +1,11 @@
-extends KinematicBody2D
+class_name Player extends CharacterBody2D
 
 # Player movement
-export var ACCELERATION = 75
-export var FRICTION = 50
-export var SPEED = 200
+@export var ACCELERATION = 75
+@export var FRICTION = 50
+@export var SPEED = 200
 
-onready var timer = $RefreshTimer
-
-var velocity = Vector2.ZERO
+@onready var timer = $RefreshTimer
 
 # Bullet preload
 var bullet = preload("res://Entities/Bullet.tscn")
@@ -36,7 +34,8 @@ func _physics_process(_delta):
 	else:
 		velocity = velocity.move_toward(Vector2.ZERO, FRICTION)
 
-	velocity = move_and_slide(velocity)
+	set_velocity(velocity)
+	move_and_slide()
 
 	# Handle weapon firing
 	if Input.is_action_just_pressed("mouse_left"):
@@ -54,20 +53,22 @@ func enemy_killed():
 
 
 func fire():
-	var bullet_instance = bullet.instance()
+	var bullet_instance = bullet.instantiate()
 	bullet_instance.initialize(get_global_position(), rotation_degrees)
 	get_parent().add_child(bullet_instance)
 
 
 func load_endgame(status):
-	var engame_instance = endgame.instance()
-	engame_instance.initialize(status)
-	get_tree().get_root().add_child(engame_instance)
-	var _return = get_tree().change_scene_to(engame_instance)
+	var endgame_instance = endgame.instantiate()
+	endgame_instance.initialize(status)
+
+	get_tree().root.add_child(endgame_instance)
+	get_parent().queue_free()
 
 
 func _on_HitBox_body_entered(_body):
-	death()
+	if _body is Enemy:
+		death()
 
 
 # Force a refresh on a set interval to catch slow or missed updates (Only seen on the web)
